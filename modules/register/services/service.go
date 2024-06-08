@@ -14,6 +14,7 @@ import (
 
 type IService interface {
 	RegisterMemberService(addMember models.RegisterMember) error
+	GetallMemberService() ([]models.MemberResponse, error)
 }
 
 type service struct {
@@ -69,4 +70,15 @@ func (s *service) RegisterMemberService(addMember models.RegisterMember) error {
 		return err
 	}
 	return nil
+}
+
+
+func (s * service) GetallMemberService() ([]models.MemberResponse, error) {
+    members, err := s.r.GetallMembersRepository() 
+	if err!= nil {
+        log.Println(err)
+        return nil, err
+    }
+	return members, nil
+
 }

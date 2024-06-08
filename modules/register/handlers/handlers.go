@@ -10,6 +10,7 @@ import (
 
 type IHandler interface {
 	RegisterMemberHandler(c *gin.Context)
+	GetallMembersHandler(c *gin.Context)
 }
 
 type handler struct {
@@ -32,4 +33,13 @@ func (h *handler) RegisterMemberHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"status": "OK", "message": "Register Successfully"})
+}
+
+func (h *handler) GetallMembersHandler(c *gin.Context) {
+	members, err := h.s.GetallMemberService()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "Error", "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "DataMembers": members})
 }

@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"os"
 	"time"
 	"users/modules/login/models"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtSecret = []byte("your_secret_key")
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 // CreateTokenI สร้าง JWT token จาก email โดยมีอายุ 1 นาที
 func CreateTokenI(email string) (string, error) {

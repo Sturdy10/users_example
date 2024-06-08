@@ -10,6 +10,7 @@ import (
 type IRepositorie interface {
 	RegisterMemberRepository(employee models.RegisterMember) error
 	CheckExistingEmail(email string) (bool, error)
+	GetallMembersRepository() ([]models.MemberResponse, error)
 }
 
 type repository struct {
@@ -30,7 +31,6 @@ func (r *repository) CheckExistingEmail(email string) (bool, error) {
 	}
 	return false, nil // หากไม่พบอีเมลซ้ำ
 }
-
 
 func (r *repository) RegisterMemberRepository(addMember models.RegisterMember) error {
 	tx, err := r.db.Begin()
@@ -80,4 +80,43 @@ func (r *repository) RegisterMemberRepository(addMember models.RegisterMember) e
 	}
 
 	return nil
+}
+
+func (r *repository) GetallMembersRepository() ([]models.MemberResponse, error) {
+	var members []models.MemberResponse
+
+	rows, err := r.db.Query(`
+        SELECT
+		    m.orgmb_id,
+            m.orgmb_title,
+            m.orgmb_name,
+            m.orgmb_surname,
+            m.orgmb_email,
+            m.orgmb_mobile,
+            r.orgrl_orgdp_id AS role,
+            d.orgdp_name AS department
+        FROM
+            organize_member m
+        JOIN
+            organize_role r ON m.orgmb_role = r.orgrl_id
+        JOIN
+            organize_department d ON r.orgrl_orgdp_id = d.orgdp_id
+    `)
+	if err != nil {
+		log.Println("failed to query organize_member:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var member models.MemberResponse
+		err := rows.Scan(&member.OrgmbID, &member.OrgmbTitle, &member.OrgmbName, &member.OrgmbSurname, &member.OrgmbEmail, &member.OrgmbMobile, &member.OrgrlOrgdpID, &member.OrgdpName)
+		if err != nil {
+			log.Println("failed to scan organize_member:", err)
+			return nil, err
+		}
+		members = append(members, member)
+	}
+
+	return members, nil
 }

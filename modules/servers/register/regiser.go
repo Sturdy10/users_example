@@ -16,4 +16,5 @@ func Register(router *gin.Engine, db *sql.DB) {
 	h := handlers.NewHandler(s)
 
 	router.POST("/api/register", h.RegisterMemberHandler)
+	router.GET("/api/getAllMember", h.GetallMembersHandler)
 }
